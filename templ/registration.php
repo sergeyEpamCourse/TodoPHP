@@ -7,7 +7,7 @@
         include ('templ/common_parts/css.php');
         include ('templ/common_parts/jsLibs.php');
         ?>
-        <script src="js/regJs.js"></script>
+        <script src="js/loginJs.js"></script>
     </head>
 
     <body>

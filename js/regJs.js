@@ -1,3 +1,5 @@
+//not used script
+
 (function($, undefined) {
     $(function() {
         $('#enter').click(function(event) {

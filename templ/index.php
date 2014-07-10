@@ -35,6 +35,17 @@
             </div>
             <ul id="todo_list"></ul>
         </div>
+
+        <script type="text/template" id="templateId">
+            <% _.each(arr, function(element, index) {%>
+                <li class="todos" todoIndex="<%=index %>" completed="<%=element.completed %>">
+                    <div class="todo_text"><%=element.text %></div>
+                    <span class="close">Close</span>
+                    <span class="editButton">Edit</span>
+                    <span class="completedButton">Completed</span>
+                </li>
+            <% }); %>
+        </script>
     </body>
 
 </html>

@@ -1,4 +1,5 @@
 <?php
+//not used script
 
 include_once 'php/checkLogin.php';
 include_once 'php/common_function/redirToStatusPage.php';

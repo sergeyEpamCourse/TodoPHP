@@ -1,21 +1,21 @@
 (function($, undefined) {
     $(function() {
-
-        var show = {
-            "all": function() {
-                $('[completed]').show();
-            },
-            "completed": function() {
-                $('[completed]').hide();
-                $("[completed='yes']").show();
-            },
-            "notCompleted": function() {
-                $('[completed]').hide();
-                $("[completed='no']").show();
-            }
+        $.ajaxSetup({
+            async: false
+        });
+        var nowDisplayTab;
+        var all = function() {
+            $('[completed]').show();
+        };
+        var completed = function() {
+            $('[completed]').hide();
+            $("[completed='yes']").show();
+        };
+        var notCompleted = function() {
+            $('[completed]').hide();
+            $("[completed='no']").show();
         };
 
-        var nowDisplayTab = "all";
 
         //ToDo object
         function Todo(text) {
@@ -23,18 +23,16 @@
             this.completed = 'no';
         }
 
-//      storage operation
+        //      storage operation
         function setDatabaseTodoArr(arr) {
-            $.post('saveTodo.php', {"todos": JSON.stringify(arr)});
+            $.post('getSetTodo.php', {
+                "todos": JSON.stringify(arr)
+            });
         }
 
         function getDatabaseTodoArr() {
-            $.ajaxSetup({
-                async: false
-            });
-
             var todoArr = [];
-            $.post('getTodo.php', function(data) {
+            $.get('getSetTodo.php', function(data) {
                 try {
                     todoArr = JSON.parse(data);
                 } catch (e) {
@@ -43,9 +41,6 @@
             });
             return todoArr;
 
-            $.ajaxSetup({
-                async: true
-            });
         }
 
         function clearAll() {
@@ -59,7 +54,7 @@
             setDatabaseTodoArr(todoArr);
         }
 
-        function addTodoToStorage(inputTextArea, storageName) {
+        function addTodoToStorage(inputTextArea) {
             var todoArr = getDatabaseTodoArr();
             var todoText = $(inputTextArea).val();
             var newTodo = new Todo(todoText);
@@ -97,7 +92,7 @@
             setCloseEvent(".close");
             setCompletedButtonEvent(".completedButton");
             setEditButtonEvent(".editButton");
-            show[nowDisplayTab]();
+            nowDisplayTab();
             setEmptyTodoStyle();
         }
 
@@ -140,21 +135,12 @@
             setEnterEvent(".enter", '.textEditor', editTodo);
         }
 
-        function getTodoText(index) {
-            return getDatabaseTodoArr()[index].text;
-        }
-
         function createTodoHtmlList() {
             var todoArr = getDatabaseTodoArr();
 
             //underscope create todos
-            var closeButton = '<span class="close">Close</span>';
-            var completedButton = '<span class="completedButton">Completed</span>';
-            var editButton = '<span class="editButton">Edit</span>';
-            var todoText = '<div class="todo_text"><%=element.text %></div>';
-            var templFunc = '<% _.each(arr, function(element, index) {%>';
-            var templFuncEnd = '<% }); %>';
-            var list = templFunc + '<li class="todos" todoIndex="<%=index %>" completed="<%=element.completed %>">' + todoText + closeButton + editButton + completedButton + '</li>' + templFuncEnd;
+
+            var list = $("#templateId").html();
             var template = _.template(list);
             var html = template({
                 arr: todoArr
@@ -205,7 +191,7 @@
         }
 
         var addTodo = function(textEditor) {
-            addTodoToStorage(textEditor, 'todos');
+            addTodoToStorage(textEditor);
             display();
         };
 
@@ -234,8 +220,8 @@
         $("#allButton").click(function(event) {
             activeButtonStyle(event.currentTarget);
 
-            nowDisplayTab = "all";
-            show[nowDisplayTab]();
+            nowDisplayTab = all;
+            nowDisplayTab();
 
             event.stopImmediatePropagation();
             return false;
@@ -244,8 +230,8 @@
         $("#activeButton").click(function(event) {
             activeButtonStyle(event.currentTarget);
 
-            nowDisplayTab = "notCompleted";
-            show[nowDisplayTab]();
+            nowDisplayTab = notCompleted;
+            nowDisplayTab();
 
             event.stopImmediatePropagation();
             return false;
@@ -254,8 +240,8 @@
         $("#completedButton").click(function(event) {
             activeButtonStyle(event.currentTarget);
 
-            nowDisplayTab = "completed";
-            show[nowDisplayTab]();
+            nowDisplayTab = completed;
+            nowDisplayTab();
 
             event.stopImmediatePropagation();
             return false;
@@ -264,14 +250,15 @@
         $("#clearAllButton").click(function(event) {
             clearAll();
             display();
-            nowDisplayTab = "all";
-            show[nowDisplayTab]();
+            nowDisplayTab = all;
+            nowDisplayTab();
 
             event.stopImmediatePropagation();
             return false;
         });
 
         //on load
+        nowDisplayTab = all;
         setEnterEvent("#enter", '.mainTextEditor', addTodo);
         display();
         $("#allButton").click();
